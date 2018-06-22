@@ -4,6 +4,27 @@ set(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS ON)
 project(zlib C)
 
 set(VERSION "1.2.11")
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
+
+# Configure MSVC Runtime
+if(MSVC)
+	include(MSVCRuntime)
+	if(NOT DEFINED MSVC_RUNTIME)
+		set(MSVC_RUNTIME "dynamic")
+	endif()
+	if(MSVC_RUNTIME STREQUAL "static")
+		add_definitions(-DFREEIMAGE_LIB -DOPJ_STATIC -DLIBRAW_NODLL -D_CRT_SECURE_NO_WARNINGS)
+		if(BUILD_SHARED_LIBS)
+			message(FATAL_ERROR "Static CRT is only supported in a fully static build")
+		endif()
+		message(STATUS "Use the MSVC static runtime option carefully!")
+	endif()
+	configure_msvc_runtime()
+
+	if(NOT DEFINED CMAKE_SUPPRESS_REGENERATION)
+		set(CMAKE_SUPPRESS_REGENERATION ON)
+	endif()
+endif()
 
 option(ASM686 "Enable building i686 assembly implementation")
 option(AMD64 "Enable building amd64 assembly implementation")
